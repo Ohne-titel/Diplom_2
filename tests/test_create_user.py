@@ -1,14 +1,18 @@
 import allure
+import requests
 import data
+import urls
 from burger_api import BurgerApi
-from conftest import unique_user
+from helper import UserGenerate
 
 
 class TestCreateUser:
     @allure.title('Проверка успешного создания уникального юзера')
     @allure.description('Проверка успешного создания уникального юзера, проверка статус-кода и текста ответа')
-    def test_create_unique_user_success(self, unique_user):
-        created_user_request = unique_user
+    def test_create_unique_user_success(self):
+        created_user_request = BurgerApi.create_user(UserGenerate.generate_user_with_faker())
+        token = created_user_request.json()['accessToken']
+        requests.delete(urls.BASE_URL + urls.DELETE_USER_ENDPOINT, headers={'Authorization': token})
 
         assert created_user_request.status_code == 200 and created_user_request.json()['success'] is True
 
